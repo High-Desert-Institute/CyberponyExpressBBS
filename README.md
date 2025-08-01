@@ -17,9 +17,25 @@ The **Bulletin Board Service (BBS)** is the heart of the Cyberpony Express.  
 
 ### Backhaul via IPFS and Tor
 
-Cyberpony Express nodes are designed to **backhaul messages and synchronize BBS data using [IPFS](https://ipfs.tech) and the Tor network**.  Each BBS node can advertise itself on a distributed hash table via IPFS and then create an onion service through Tor to exchange data with peers.  This approach lets nodes find each other and relay messages **without exposing a public IP address**, and without relying on static IP assignments, DNS or any centralized oracle or hierarchical infrastructure.  Because IPFS handles content addressing and Tor provides privacy‑preserving routing, BBS operators can securely mirror bulletin boards and mail between distant networks even when they don’t share direct LoRa links.  Peers connect over Tor only long enough to exchange data and then return to purely LoRa operation, keeping the system decentralized and resilient.
+Cyberpony Express nodes are designed to **backhaul messages and synchronize BBS data using [IPFS](https://ipfs.tech) and the Tor network**.  Each BBS node can advertise itself on a distributed hash table via IPFS and then create an onion service through Tor to exchange data with peers.  This approach lets nodes find each other and relay messages **without exposing a public IP address**, and without relying on static IP assignments, DNS or any centralized oracle or hierarchical infrastructure.  Because IPFS handles content addressing and Tor provides privacy‑preserving routing, BBS operators can securely forward "telegrams" to remote BBS nodes even when they don’t share direct LoRa links.  Peers connect over Tor only long enough to exchange data and then return to purely LoRa operation, keeping the system decentralized and resilient.
 
 While IPFS/Tor provides a critical backhaul, **the primary synchronization mechanism is always the LoRa mesh itself**.  Nodes attempt to exchange bulletins, mail and other state over the radio network whenever possible to preserve bandwidth and maintain decentralization.  The IPFS/Tor layer acts as a **fallback** for situations where long‑distance connections are not yet available—such as early stages of network deployment or isolated regions of the mesh.  In those cases, operators can still share data without static IP infrastructure, and once mesh connectivity improves the nodes will again prioritize direct LoRa synchronization.
+
+### Store-and-forward courier model
+
+Cyberpony Express does **not** globally replicate every message. When a user wants to post to a remote BBS, the local node wraps the content in a "telegram": it encrypts the payload for the destination BBS and signs it with the origin BBS key. This sealed envelope is dropped into `backhaul/outbox/<destination>/<timestamp>.json` and relayed opportunistically over Tor, IPFS or mesh links. Relay nodes only see the encrypted blob and basic metadata. Once the destination BBS receives the file, it verifies the signature, decrypts the payload and treats it as a local post. Messages remain plaintext only on the sending and receiving BBSes, keeping intermediate relays blind.
+
+This design works much like a traditional postal system:
+
+* The local BBS is your "post office," packaging each message for a specific destination.
+* Opportunistic transports carry the sealed envelope, unable to read or tamper with it.
+* The destination BBS opens the envelope and delivers the contents locally.
+
+Security highlights:
+
+* Intermediaries cannot decipher or alter telegrams.
+* Each message is encrypted for, and readable only by, the destination BBS.
+* The origin BBS signs the envelope so the recipient can verify who sent it.
 
 ### Architecture overview
 
@@ -150,7 +166,7 @@ Below is a high‑level roadmap for the Cyberpony Express BBS.  We welcome cont
 
 ### 🌐 Phase 4 – Federation & Advanced Features
 
-* Support multi‑hop BBS linking to allow separate BBS nodes to sync messages and bulletins, creating a global Cyberpony Express network.
+* Support multi‑hop BBS linking so nodes can forward messages to specific remote BBSes, forming a wider network without copying every post everywhere.
 * Add store‑and‑forward and scheduling capabilities (message scheduling, recurring announcements) similar to Mesh Bot.
 * Integrate sensors and data feeds (weather alerts, air quality, satellite passes) to provide real‑time information to users.
 * Experiment with other local AI models for on‑device inference and summarization.
