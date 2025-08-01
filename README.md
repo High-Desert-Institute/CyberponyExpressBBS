@@ -4,7 +4,7 @@ Welcome to the **Cyberpony Express BBS** project!  This repository will contain
 
 ## Why Cyberpony Express?
 
-Conventional communication infrastructure is fragile.  A single fiber cut or power outage can leave communities without access to vital information.  **Cyberpony Express** solves this problem by creating a **decentralized “digital postal service”** built on inexpensive Meshtastic nodes.  It allows people to send and receive messages, files and other data across a mesh of devices without relying on central servers.  Anyone can host a node, and the network runs entirely off‑grid if needed.
+Conventional communication infrastructure is fragile. A single fiber cut or power outage can leave communities without access to vital information. Cyberpony Express solves this problem by creating a decentralized “digital postal service” built on inexpensive Meshtastic nodes. It allows people to send and receive messages, files and other data across a mesh of devices without relying on central servers. Anyone can host a node, and the network runs entirely off‑grid if needed.
 
 ## The role of the BBS
 
@@ -50,6 +50,63 @@ The Cyberpony Express BBS is inspired by several existing Meshtastic BBS implem
 3. **Knowledge access via the Librarian** – integrate a retrieval‑augmented chatbot that can search a local “Internet‑in‑a‑Box” library and answer user questions.
 4. **Educational games and MUDs** – create a multi‑user dungeon engine accessible over the mesh.  MUDs will teach participants how to use the network and provide fun, off‑grid entertainment.
 5. **Low‑power and resilient** – optimize the BBS operator to run on battery‑powered T‑Beam devices while off‑loading computation to the Raspberry Pi service host.
+
+## Software Scope: Raspberry Pi Service Host
+
+This repository focuses on developing the Python software that runs on the Raspberry Pi service host. In a typical deployment, a low‑power T‑Beam Supreme or similar LoRa device runs Meshtastic and the BBS operator plugin; it forwards user commands to the Raspberry Pi, which performs the heavy lifting (reading and writing mail, interacting with the librarian chatbot, running games and handling notifications) and sends replies back through the operator. While other parts of the Cyberpony Express (such as the Meshtastic firmware and radio hardware) live in their own repositories, this project encapsulates the logic for the service host, making it the main entry point for contributions that implement new BBS features.
+
+The design goal is to keep the BBS operator on the T‑Beam as light as possible (interpreting single‑character commands, queueing requests and relaying responses) while allowing the Raspberry Pi to handle application logic in Python. By separating the concerns this way, developers can iterate quickly on the high‑level user experience without being constrained by the microcontroller’s limited resources.
+
+### Menu System and User‑Interface Flow
+
+The BBS user interface is menu‑driven and delivered via text messages over the mesh network. Every exchange between a user and the BBS is constrained by the 237‑character limit imposed by Meshtastic; messages that exceed this length must be split across multiple transmissions. Additionally, the Meshtastic app presents each incoming message in a separate chat bubble, so visual separation happens naturally. As a result, the BBS avoids drawing lines or other separators; instead, it simply sends a new message when a logical break is needed. A Markdown horizontal rule (---) may be used as an escape character inside a single message to indicate a separation if absolutely necessary, but the preferred approach is to send separate messages.
+
+### Initial greeting and main menu
+
+When a user first sends any message (even just “Hi”) to the BBS, the service responds with a welcome header containing contextual information (software version, timestamp, approximate location, number of active users, number of new messages and notifications, and battery status) followed by the main menu. Because of the character limit, this information may be sent as multiple messages. For example:
+
+```
+User: Hi
+
+BBS: Cyberpony Express BBS v0.1
+2025‑08‑01 2:30 PM
+Sunny 80°
+San Francisco, CA
+25 active users
+5 new messages
+20 notifications
+Battery: 86%
+
+BBS: Main Menu:
+1. Messages
+2. Notifications
+3. AI Chat
+4. Human Chat (MUDs)
+5. Weather
+```
+
+Here, the BBS has chosen to break the header and the menu into two messages to remain under the character limit. The absence of separators between the two messages is intentional; the chat bubbles themselves serve as separators.
+Menu definitions
+
+Each menu option leads to a sub‑menu or action. The current high‑level structure is:
+
+1. Messages – View, send or manage personal mail. When selected, the BBS returns a Messages Menu listing options such as Read New, Read All, Send Message, Manage Threads and Return to Main. The Read New option shows a list of new messages (numbered) and invites the user to enter a number to read a specific message; after reading, the user may reply, delete or return to the list. The Send Message option prompts for the destination (by node ID or alias) and then the message body. At any point, sending 0 returns to the previous menu.
+2. Notifications – View system notifications (e.g., channel announcements, battery warnings, network status). Selecting this option displays the most recent notifications (numbered) and allows the user to mark them as read or delete them. As with messages, entering 0 will return to the main menu3.
+3. AI Chat – Talk to the Librarian chatbot. The user may send a question or request; the librarian responds with a concise answer (again, respecting the 237‑character limit and splitting across multiple messages if necessary). After the answer, the menu offers options like Ask Another Question or Return to Main. When a response requires multiple parts, the BBS sends them one after another, each clearly labelled (e.g., “1/3”, “2/3”, “3/3”) so users know when the answer is complete.
+4. Human Chat (MUDs) – Enter the multi‑user dungeon environment. The BBS will switch the conversation into a text‑adventure mode where players explore a shared world, issue commands and interact with other players. A MUD Menu provides commands such as Look, Move, Inventory, Help and Return to Main. Returning to the main menu suspends the game session but does not delete it; players can resume later.
+5. Weather – Request current weather or forecasts from the service host (when available). The menu may offer Current Conditions, Forecast and Return to Main.
+
+Navigating menus
+
+The BBS uses single‑character commands (numbers or letters) to navigate. When a menu is displayed, the user selects an option by sending the corresponding number. Within any sub‑menu, sending 0 returns to the previous menu; from the main menu, sending 0 exits the BBS session. If a user enters an invalid option, the BBS re‑displays the current menu with an error message (e.g., “Invalid selection. Please choose from the listed options.”). The BBS also supports shortcuts, such as sending M to jump directly back to the main menu from anywhere.
+Message formatting guidelines
+
+- Character limit: All responses must fit within 237 characters per message. When content exceeds this limit, split it into separate messages; do not rely on line breaks alone.
+- No decorative separators: Use separate messages rather than horizontal rules or lines. If necessary, a --- sequence may denote a separation within a single message, but avoid overusing it.
+- Stateful interactions: The BBS tracks each user’s current menu context so that it can interpret responses correctly. For example, after the BBS shows the Messages Menu, sending 1 triggers the Read New action rather than referring to the main menu.
+-Graceful fallback: If the BBS does not understand a command or context is lost, it sends a friendly error message and redisplays the relevant menu.
+
+By formalizing the menu system and message formatting as described above, we lay the groundwork for implementing the BBS logic in Python on the Raspberry Pi while ensuring a consistent, user‑friendly experience over the constrained LoRa mesh network.
 
 ## High Desert Institute & Community Resilience
 
