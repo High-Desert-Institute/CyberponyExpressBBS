@@ -51,6 +51,22 @@ The Cyberpony Express BBS is inspired by several existing Meshtastic BBS implem
 4. **Educational games and MUDs** – create a multi‑user dungeon engine accessible over the mesh.  MUDs will teach participants how to use the network and provide fun, off‑grid entertainment.
 5. **Low‑power and resilient** – optimize the BBS operator to run on battery‑powered T‑Beam devices while off‑loading computation to the Raspberry Pi service host.
 
+## High Desert Institute & Community Resilience
+
+The High Desert Institute (HDI) is a 501(c)(3) non‑profit dedicated to “building a foundation for the survival of humanity.” Its mission is to create off‑grid land projects, publish free libraries of knowledge and organize guilds that empower communities to live sustainably. HDI’s founders are raising funds to establish permaculture and mutual‑aid outposts in the high deserts of the American southwest; these sites will research, develop and distribute free, open‑source solutions to basic needs like housing and off‑grid infrastructure. The organization operates transparently—every donated dollar supports the mission—and publishes everything it learns so others can replicate its work.
+
+### The Library and the Librarian
+
+HDI’s library project aims to publish a vast, free, open‑source library that contains the knowledge required to live well off‑grid. The idea originated when one of the intentional communities HDI helped build requested a way to host private intranets with useful information. HDI’s library will be freely accessible to anyone and will include both the institute’s own findings and curated content from other sources. Within the BBS, this library is accessed through the Librarian chatbot, which uses retrieval‑augmented generation (RAG) to search the local library and answer questions. By embedding a searchable library in the off‑grid mesh, the project turns the BBS into more than just a messaging system—it becomes a knowledge hub for communities during disasters.
+
+### How Cyberpony Express fits into HDI’s mission
+
+HDI partners with Burners Without Borders and the Multiverse School to build the Cyberpony Express—a free, secure, public mesh network using Meshtastic nodes. This network connects HDI outposts and intentional communities without relying on the fragile infrastructure of the Internet or cell towers. It is therefore vital disaster‑response infrastructure: by maintaining communications when conventional networks fail, the Cyberpony Express helps communities stay safe and coordinated during emergencies. The BBS described in this repository is the core software service that runs atop Cyberpony Express, providing a digital postal service, a library interface and text‑based games. Together, these components support HDI’s broader goal of building resilient, sustainable communities through open knowledge, decentralized communication and mutual aid.
+
+### Guilds and community development
+
+HDI organizes guilds—semi‑autonomous groups that focus on specific aspects of community development. Guilds can fundraise and make decisions independently, and are encouraged to grow beyond HDI to operate all over the world. The Librarians’ Guild, for instance, is spearheading the development of the Cyberpony Express BBS and the off‑grid library. By fostering guilds, HDI builds a network of practitioners who can share knowledge, design new tools and support one another in cultivating resilient, sustainable and disaster‑ready communities.
+
 ## Roadmap
 
 Below is a high‑level roadmap for the Cyberpony Express BBS.  We welcome contributions and feedback!
