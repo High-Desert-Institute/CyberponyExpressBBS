@@ -24,6 +24,8 @@ def handle_board(message: BBSMessage) -> str:
 
 def read_thread(thread: str) -> str:
     thread_dir = BOARD_ROOT / thread
+    if not thread_dir.exists():
+        return "Thread does not exist."
     files = sorted(thread_dir.glob("*.txt"))
     lines = []
     for path in files:
