@@ -23,11 +23,15 @@ class ServiceHost:
             if message is None:
                 sleep(0.1)
                 continue
-            command = message.text.split()[0]
-            handler = self.handlers.get(command)
-            if handler is None:
-                reply = "Unknown command."
+            parts = message.text.split()
+            if not parts:
+                reply = "Empty command."
             else:
-                reply = handler(message)
+                command = parts[0]
+                handler = self.handlers.get(command)
+                if handler is None:
+                    reply = "Unknown command."
+                else:
+                    reply = handler(message)
             self.operator.send_text(message.sender_id, reply)
             self.queue.ack(message)
