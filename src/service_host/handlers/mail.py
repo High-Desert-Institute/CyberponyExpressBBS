@@ -40,7 +40,10 @@ def list_messages(user_id: str) -> str:
 def read_message(user_id: str, index_str: str) -> str:
     user_dir = MAIL_ROOT / user_id
     files = sorted(user_dir.glob("*.txt"))
-    index = int(index_str) - 1
+    try:
+        index = int(index_str) - 1
+    except ValueError:
+        return "Invalid message number."
     if index < 0 or index >= len(files):
         return "Invalid message number."
     path = files[index]
