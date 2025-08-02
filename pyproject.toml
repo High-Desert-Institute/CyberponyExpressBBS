@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyberpony-express-bbs"
+version = "0.1.0"
+description = "Cyberpony Express BBS service components."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "requests>=2.31"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
